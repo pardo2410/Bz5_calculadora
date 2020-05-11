@@ -94,6 +94,9 @@ dbuttons = [
         "row": 5
     }
 ]
+def pinta(valor):
+    print(valor)
+    return valor
 
 class Controlator(ttk.Frame):
     def __init__(self, parent, **kwargs):
@@ -102,9 +105,10 @@ class Controlator(ttk.Frame):
         d.grid(column = 0, row = 0, columnspan = 4)
         
         for properties in dbuttons:
-            btn=CalcButton(self,properties['text'], properties.get('W',1),properties.get('H',1))
-            btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1))
         
+            btn=CalcButton(self,properties['text'], lambda: pinta(properties.get('text')), properties.get('W',1),properties.get('H',1))
+            btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1))
+
 class Display(ttk.Frame):
     def __init__(self,parent):
         ttk.Frame.__init__(self, parent, width =272, height = 50)
@@ -119,9 +123,9 @@ class Display(ttk.Frame):
 class Selector(ttk.Radiobutton):
     pass
 class CalcButton(ttk.Frame):
-    def __init__(self, parent, value, width = 1, height = 1):
+    def __init__(self, parent, value, command, width = 1, height = 1):
         ttk.Frame.__init__(self, parent, width = 68*width, height = 50*height)
         self.pack_propagate(0)
 
-        btn = ttk.Button(self, text = value)
+        btn = ttk.Button(self, text = value, command = command)
         btn.pack(side = TOP , fill = BOTH, expand = True)
