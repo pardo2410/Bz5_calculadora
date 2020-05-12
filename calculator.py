@@ -106,20 +106,41 @@ class Controlator(ttk.Frame):
         
         for properties in dbuttons:
         
-            btn=CalcButton(self,properties['text'], lambda: pinta(properties.get('text')), properties.get('W',1),properties.get('H',1))
+            btn=CalcButton(self,properties['text'], d.paint, properties.get('W',1),properties.get('H',1))
             btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1))
+
+        
 
 class Display(ttk.Frame):
     def __init__(self,parent):
         ttk.Frame.__init__(self, parent, width =272, height = 50)
         self.pack_propagate(0)
+        self.value ='0'
 
         s = ttk.Style()
         s.theme_use('alt')
         s.configure('my.TLabel', font = 'Helvetica 30', background= 'black', foreground='white')
 
-        lbl = ttk.Label(self, text = '0', anchor = E, style = 'my.TLabel')
-        lbl.pack(side = TOP, fill = BOTH, expand = True)    
+        self.lbl = ttk.Label(self, text = self.value, anchor = E, style = 'my.TLabel')
+        self.lbl.pack(side = TOP, fill = BOTH, expand = True) 
+    
+    def paint(self, algo):
+        if algo.isdigit():
+            if self.value == '0':
+                self.value = algo
+            else:
+                self.value += str(algo)
+        elif algo == 'C':
+            self.value = '0'
+        elif algo == '+/-' and self.value !='0':
+            if self.value[0] == '-':
+                self.value = self.value[1:]
+            else:
+                self.value = '-'+ self.value
+        elif algo ==',' and ',' not in self.value:
+                self.value += str(algo)      
+        self.lbl.config(text= self.value)
+
 class Selector(ttk.Radiobutton):
     pass
 class CalcButton(ttk.Frame):
@@ -127,5 +148,5 @@ class CalcButton(ttk.Frame):
         ttk.Frame.__init__(self, parent, width = 68*width, height = 50*height)
         self.pack_propagate(0)
 
-        btn = ttk.Button(self, text = value, command = command)
+        btn = ttk.Button(self, text = value, command = lambda: command(value))
         btn.pack(side = TOP , fill = BOTH, expand = True)
