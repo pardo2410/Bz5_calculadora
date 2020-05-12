@@ -120,10 +120,11 @@ class Controlator(ttk.Frame):
             return self.op1 + self.op2
         elif self.operation == '-':
             return self.op1 -  self.op2
-        elif self.operation == '*':
+        elif self.operation == 'x':
             return self.op1 * self.op2
         elif self.operation == '÷':
             return self.op1 / self.op2
+            
         return self.op2
 
     def set_operation(self,algo):
@@ -132,16 +133,16 @@ class Controlator(ttk.Frame):
                 self.dispValue = algo
             else:
                 self.dispValue += str(algo)
-        elif algo == 'C':
+        if algo == 'C':
             self.dispValue = '0'
-        elif algo == '+/-' and self.dispValue !='0':
+        if algo == '+/-' and self.dispValue !='0':
             if self.dispValue[0] == '-':
                 self.dispValue = self.dispValue[1:]
             else:
                 self.dispValue = '-'+ self.dispValue
-        elif algo ==',' and ',' not in self.dispValue:
+        if algo ==',' and ',' not in self.dispValue:
                 self.dispValue += str(algo) 
-        self.display.paint(self.dispValue)
+        
 
         if algo =='+':
             self.op1 = self.to_float(self.dispValue)
@@ -152,6 +153,8 @@ class Controlator(ttk.Frame):
             self.op2 = self.to_float(self.dispValue)
             res = self.calculate()
             self.dispValue =str(res)
+
+        self.display.paint(self.dispValue)
 
 class Display(ttk.Frame):
     def __init__(self,parent):
