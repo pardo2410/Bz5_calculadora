@@ -115,7 +115,7 @@ class Controlator(ttk.Frame):
         self.op2 = 0
         self.operation = ''
         self.dispValue = '0'
-        self.i=0
+        self.signo_recient_pulsado = False
 
     def to_float(self, valor):
         return float(valor.replace(',','.'))
@@ -137,7 +137,9 @@ class Controlator(ttk.Frame):
 
     def set_operation(self,algo):
         if algo.isdigit():
-            if self.dispValue == '0':
+            if self.dispValue == '0' or self.signo_recient_pulsado:
+                self.op1 = self.to_float(self.dispValue)
+                self.op2 = 0
                 self.dispValue = algo
             else:
                 self.dispValue += str(algo)
@@ -151,24 +153,38 @@ class Controlator(ttk.Frame):
         if algo ==',' and ',' not in self.dispValue:
                 self.dispValue += str(algo) 
         
-        if algo =='+' or  algo == '-' or algo =='x' or algo == '÷':           
-            if self.i==0:
+        if algo =='+' or  algo == '-' or algo =='x' or algo == '÷':
+            if self.op1 == 0:           
                 self.op1 = self.to_float(self.dispValue)
                 self.operation = algo
-                self.dispValue='0'
-                self.i+=1
-            else:
+            elif self.op2 == 0:
                 self.op2 = self.to_float(self.dispValue)
                 resul_float = self.calculate()
                 Resul_Str = self.to_str(resul_float)
                 self.dispValue =Resul_Str
-                self.i=0
+                self.operation = algo
+            else:
+                self.op1 = self.to_float(self.dispValue)
+                self.op2 = 0
+                self.operation = algo                
+            self.signo_recient_pulsado = True
+        else:
+            self.signo_recient_pulsado = False
+            
+
+
 
         if algo == '=':
-            self.op2 = self.to_float(self.dispValue)
-            resul_float = self.calculate()
-            Resul_Str = self.to_str(resul_float)
-            self.dispValue =Resul_Str
+            if self.op1 != 0 and self.op2 == 0:
+                self.op2 = self.to_float(self.dispValue)
+                resul_float = self.calculate()
+                Resul_Str = self.to_str(resul_float)
+                self.dispValue =Resul_Str
+            elif self.op1 != 0 and self.op2 !=0:
+                self.op1 = self.to_float(self.dispValue)
+                resul_float = self.calculate()
+                Resul_Str = self.to_str(resul_float)
+                self.dispValue =Resul_Str
 
         self.display.paint(self.dispValue)
 
