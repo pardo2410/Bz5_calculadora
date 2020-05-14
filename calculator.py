@@ -101,27 +101,28 @@ def pinta(valor):
 class Controlator(ttk.Frame):
     def __init__(self, parent, **kwargs):
         ttk.Frame.__init__(self, parent, width = 272, height = 300)
-        self.op1 = 0
-        self.op2 = 0
-        self.operation = ''
-        self.dispValue = '0'
-        self.i=0
-        
+        self.reset()
         self.display = Display(self)
         self.display.grid(column = 0, row = 0, columnspan = 4)
         
         for properties in dbuttons:
         
             btn=CalcButton(self,properties['text'],self.set_operation, properties.get('W',1),properties.get('H',1))
-            btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1))
+            btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1)) 
+    
+    def reset(self):
+        self.op1 = 0
+        self.op2 = 0
+        self.operation = ''
+        self.dispValue = '0'
+        self.i=0
+
     def to_float(self, valor):
         return float(valor.replace(',','.'))
-    def to_str(self, valor):
-        Valor = str(valor)
-        return Valor.replace('.',',')
 
-        
-            
+    def to_str(self, valor):
+        return str(valor).replace('.',',')     
+
     def calculate(self):
         if self.operation =='+':
             return self.op1 + self.op2
@@ -141,9 +142,7 @@ class Controlator(ttk.Frame):
             else:
                 self.dispValue += str(algo)
         if algo == 'C':
-            self.dispValue = '0'
-            self.op1 = 0
-            self.op2 = 0
+            self.reset()
         if algo == '+/-' and self.dispValue !='0':
             if self.dispValue[0] == '-':
                 self.dispValue = self.dispValue[1:]
@@ -152,8 +151,7 @@ class Controlator(ttk.Frame):
         if algo ==',' and ',' not in self.dispValue:
                 self.dispValue += str(algo) 
         
-        if algo =='+':
-            
+        if algo =='+' or  algo == '-' or algo =='x' or algo == '÷':           
             if self.i==0:
                 self.op1 = self.to_float(self.dispValue)
                 self.operation = algo
@@ -166,42 +164,6 @@ class Controlator(ttk.Frame):
                 self.dispValue =Resul_Str
                 self.i=0
 
-        if algo =='-':
-            if self.i==0:
-                self.op1 = self.to_float(self.dispValue)
-                self.operation = algo
-                self.dispValue='0'
-                self.i+=1
-            else:
-                self.op2 = self.to_float(self.dispValue)
-                resul_float = self.calculate()
-                Resul_Str = self.to_str(resul_float)
-                self.dispValue =Resul_Str
-                self.i=0
-        if algo =='x':
-            if self.i==0:
-                self.op1 = self.to_float(self.dispValue)
-                self.operation = algo
-                self.dispValue='0'
-                self.i+=1
-            else:
-                self.op2 = self.to_float(self.dispValue)
-                resul_float = self.calculate()
-                Resul_Str = self.to_str(resul_float)
-                self.dispValue =Resul_Str
-                self.i=0
-        if algo =='÷':
-            if self.i==0:
-                self.op1 = self.to_float(self.dispValue)
-                self.operation = algo
-                self.dispValue='0'
-                self.i+=1
-            else:
-                self.op2 = self.to_float(self.dispValue)
-                resul_float = self.calculate()
-                Resul_Str = self.to_str(resul_float)
-                self.dispValue =Resul_Str
-                self.i=0
         if algo == '=':
             self.op2 = self.to_float(self.dispValue)
             resul_float = self.calculate()
@@ -226,6 +188,7 @@ class Display(ttk.Frame):
     def paint(self, algo):
         self.value = algo
         self.lbl.config(text= algo)
+
 class Selector(ttk.Radiobutton):
     pass
 class CalcButton(ttk.Frame):
