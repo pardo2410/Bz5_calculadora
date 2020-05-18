@@ -111,8 +111,8 @@ class Controlator(ttk.Frame):
             btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1)) 
     
     def reset(self):
-        self.op1 = 0
-        self.op2 = 0
+        self.op1 = None
+        self.op2 = None
         self.operation = ''
         self.dispValue = '0'
         self.signo_recient_pulsado = False
@@ -139,7 +139,7 @@ class Controlator(ttk.Frame):
         if algo.isdigit():
             if self.dispValue == '0' or self.signo_recient_pulsado:
                 self.op1 = self.to_float(self.dispValue)
-                self.op2 = 0
+                self.op2 = None
                 self.dispValue = algo
             else:
                 self.dispValue += str(algo)
@@ -154,10 +154,10 @@ class Controlator(ttk.Frame):
                 self.dispValue += str(algo) 
         
         if algo =='+' or  algo == '-' or algo =='x' or algo == '÷':
-            if self.op1 == 0:           
+            if self.op1 == None: #not self.op1:           
                 self.op1 = self.to_float(self.dispValue)
                 self.operation = algo
-            elif self.op2 == 0:
+            elif self.op2 == None:#not self.op2: 
                 self.op2 = self.to_float(self.dispValue)
                 resul_float = self.calculate()
                 Resul_Str = self.to_str(resul_float)
@@ -165,22 +165,19 @@ class Controlator(ttk.Frame):
                 self.operation = algo
             else:
                 self.op1 = self.to_float(self.dispValue)
-                self.op2 = 0
+                self.op2 = None
                 self.operation = algo                
             self.signo_recient_pulsado = True
         else:
             self.signo_recient_pulsado = False
             
-
-
-
         if algo == '=':
-            if self.op1 != 0 and self.op2 == 0:
+            if self.op1 != None and self.op2 == None: #if self.op1 and not self.ope2:
                 self.op2 = self.to_float(self.dispValue)
                 resul_float = self.calculate()
                 Resul_Str = self.to_str(resul_float)
                 self.dispValue =Resul_Str
-            elif self.op1 != 0 and self.op2 !=0:
+            elif self.op1 != None and self.op2 !=None:
                 self.op1 = self.to_float(self.dispValue)
                 resul_float = self.calculate()
                 Resul_Str = self.to_str(resul_float)
@@ -205,8 +202,14 @@ class Display(ttk.Frame):
         self.value = algo
         self.lbl.config(text= algo)
 
-class Selector(ttk.Radiobutton):
-    pass
+class Selector(ttk.Frame):
+    def __init__ (self, parent, status='N'):
+        ttk.Frame.__init__(self, parent, width =68, height = 50)
+        self.status = status
+        radiob1 = ttk.Radiobutton(self,text='N', value ='N', name= 'rbtn_normal', variable =self.status)
+        radiob1.place(x=0,y=5)
+        radiob2 = ttk.Radiobutton(self,text='R', value ='R', name= 'rbtn_romano', variable =self.status)
+        radiob2.place(x=0,y=30)
 class CalcButton(ttk.Frame):
     def __init__(self, parent, value, command, width = 1, height = 1):
         ttk.Frame.__init__(self, parent, width = 68*width, height = 50*height)
