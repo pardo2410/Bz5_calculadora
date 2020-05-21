@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+import cromanos
 
 normal_buttons = [
     {
@@ -175,12 +176,14 @@ class Controlator(ttk.Frame):
     def __init__(self, parent, **kwargs):
         ttk.Frame.__init__(self, parent, width = 272, height = 300)
         self.reset()
-
+        self.status = 'N'
         self.display = Display(self)
         self.display.grid(column = 0, row = 0)
 
-        self.keyboard = Keyboard(self)
+        self.keyboard = Keyboard(self, self.set_operation, self.status)
         self.keyboard.grid(column =0, row = 1)
+        self.selector= Selector(self.keyboard, self.change_status,self.status)
+        self.selector.grid(column = 0 , row = 1)
         
     
     def reset(self):
@@ -208,56 +211,72 @@ class Controlator(ttk.Frame):
             
         return self.op2
 
-    def set_operation(self,algo):
-        if algo.isdigit():
-            if self.dispValue == '0' or self.signo_recient_pulsado:
+    def set_operation(self, algo):
+
+        if self.status == "R":
+            self.set_operation_R(algo)
+        else:
+            self.set_operation_N(algo)
+            
+        self.display.paint(self.dispValue)
+
+    def set_operation_R(self, algo):
+        print("En desarrollo")
+
+    def set_operation_N(self, algo):
+        if algo.isdigit(): #Comprobar si algo esta en (IVXLCDM) y comprobar si el número romano está bien formateado. Cambiar dispValue
+            if self.dispValue == "0" or self.signo_recien_pulsado:
                 self.op1 = self.to_float(self.dispValue)
                 self.op2 = None
                 self.dispValue = algo
             else:
                 self.dispValue += str(algo)
-        if algo == 'C':
+        
+        if algo == 'C': #y es arábigo si no sera 'AC'
             self.reset()
-        if algo == '+/-' and self.dispValue !='0':
+
+        if algo == '+/-' and self.dispValue != '0': #No funciona en romano
             if self.dispValue[0] == '-':
                 self.dispValue = self.dispValue[1:]
             else:
-                self.dispValue = '-'+ self.dispValue
-        if algo ==',' and ',' not in self.dispValue:
-                self.dispValue += str(algo) 
-        
-        if algo =='+' or  algo == '-' or algo =='x' or algo == '÷':
-            if self.op1 == None: #not self.op1:           
-                self.op1 = self.to_float(self.dispValue)
+                self.dispValue = '-' + self.dispValue
+
+        if algo == ',' and ',' not in self.dispValue: #No funciona en romano
+            self.dispValue += str(algo)
+
+        if algo == '+' or algo == '-' or algo =='x' or algo =='÷':
+            if not self.op1:
+                self.op1 = self.to_float(self.dispValue) #pasar a RomanNumber si status es R
                 self.operation = algo
-            elif self.op2 == None:#not self.op2: 
-                self.op2 = self.to_float(self.dispValue)
-                resul_float = self.calculate()
-                Resul_Str = self.to_str(resul_float)
-                self.dispValue =Resul_Str
+            elif not self.op2:
+                self.op2 = self.to_float(self.dispValue) #pasar a RomanNumber si status es R
+                res = self.calculate()
+                self.dispValue = self.to_str(res)
                 self.operation = algo
-            else:
-                self.op1 = self.to_float(self.dispValue)
+            else: 
+                self.op1 = self.to_float(self.dispValue) #pasar a RomanNumber si status es R
                 self.op2 = None
-                self.operation = algo                
-            self.signo_recient_pulsado = True
+                self.operation = algo
+            self.signo_recien_pulsado = True
         else:
-            self.signo_recient_pulsado = False
-            
+            self.signo_recien_pulsado = False
+
         if algo == '=':
-            if self.op1 != None and self.op2 == None: #if self.op1 and not self.ope2:
+            if self.op1 and not self.op2:
                 self.op2 = self.to_float(self.dispValue)
-                resul_float = self.calculate()
-                Resul_Str = self.to_str(resul_float)
-                self.dispValue =Resul_Str
-            elif self.op1 != None and self.op2 !=None:
+                res = self.calculate()
+                self.dispValue = self.to_str(res)
+
+            elif self.op1 and self.op2:
                 self.op1 = self.to_float(self.dispValue)
-                resul_float = self.calculate()
-                Resul_Str = self.to_str(resul_float)
-                self.dispValue =Resul_Str
+                res = self.calculate()
+                self.dispValue = self.to_str(res)
 
-        self.display.paint(self.dispValue)
-
+    def change_status(self,status):
+        self.status = status
+        self.keyboard.status = status
+        self.reset()
+      
 class Display(ttk.Frame):
     def __init__(self,parent):
         ttk.Frame.__init__(self, parent, width =272, height = 50)
@@ -276,23 +295,28 @@ class Display(ttk.Frame):
         self.lbl.config(text= algo)
 
 class Selector(ttk.Frame):
-    def __init__ (self, parent, status='N'):
+    def __init__ (self, parent,command, status='N'):
         ttk.Frame.__init__(self, parent, width =68, height = 50)
         self.status = status
         self.__value = StringVar()
         self.__value.set(self.status)
+        self.command = command
         radiob1 = ttk.Radiobutton(self,text='N', value ='N', name= 'rbtn_normal', variable =self.__value, command =self.__click)
         radiob1.place(x=0,y=5)
         radiob2 = ttk.Radiobutton(self,text='R', value ='R', name= 'rbtn_romano', variable =self.__value, command =self.__click)
         radiob2.place(x=0,y=30)
     def __click(self):
         self.status =self.__value.get()
+        self.command(self.status)
+
+
 class Keyboard(ttk.Frame):
-    def __init__(self, parent, status='N'):
+    def __init__(self, parent, command ,status='N'):
         ttk.Frame.__init__(self, parent, width = 272, height = 250)
         self.__status = status
         self.listaBRomanos = []
         self.listaBNormales = []
+        self.command =command
         if self.__status  == 'N':
             self.pintaNormal()
         else:
@@ -310,7 +334,7 @@ class Keyboard(ttk.Frame):
     def pintaNormal(self):
         if len(self.listaBNormales)==0:
             for properties in normal_buttons:
-                        btn=CalcButton(self,properties['text'],None, properties.get('W',1),properties.get('H',1))
+                        btn=CalcButton(self,properties['text'],self.command, properties.get('W',1),properties.get('H',1))
                         self.listaBNormales.append((btn, properties))
                         btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1)) 
         else:
@@ -322,7 +346,7 @@ class Keyboard(ttk.Frame):
     def pintaRomano(self):
         if len(self.listaBRomanos)==0:
             for properties in roman_buttons:
-                        btn=CalcButton(self,properties['text'],None, properties.get('W',1),properties.get('H',1))
+                        btn=CalcButton(self,properties['text'],self.command, properties.get('W',1),properties.get('H',1))
                         self.listaBRomanos.append((btn, properties))
                         btn.grid(column=properties['col'],row =properties['row'], columnspan = properties.get('W',1), rowspan = properties.get('H',1)) 
         else:

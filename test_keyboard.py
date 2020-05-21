@@ -19,6 +19,8 @@ class TestKeyboard(tkinterTestCase.TkTestCase):
         for btn in self.k.children.values():
             self.assertIsInstance(btn, calculator.CalcButton)
         self.assertEqual(len(self.k.children), 18)
+        self.assertEqual(len(self.k.listaBNormales), 18)
+        self.assertEqual(len(self.k.listaBRomanos), 0)
     def test_render_roman_Ok(self):
         teclado_romano = calculator.Keyboard(self.root, 'R')
         teclado_romano.pack()
@@ -28,6 +30,8 @@ class TestKeyboard(tkinterTestCase.TkTestCase):
         for btn in teclado_romano.children.values():
             self.assertIsInstance(btn, calculator.CalcButton)
         self.assertEqual(len(teclado_romano.children), 13)
+        self.assertEqual(len(teclado_romano.listaBNormales), 0)
+        self.assertEqual(len(teclado_romano.listaBRomanos), 13)
         teclado_romano.update()
         teclado_romano.destroy()
     def test_change_status_keyboard(self):
@@ -35,12 +39,12 @@ class TestKeyboard(tkinterTestCase.TkTestCase):
         self.k.status = 'R'
         for btn in self.k.children.values():
             self.assertIsInstance(btn, calculator.CalcButton)
-        self.assertEqual(len(self.k.children), 13)
+        self.assertEqual(len(self.k.children), 31)
+        self.assertEqual(len(self.k.listaBNormales), 18)
+        self.assertEqual(len(self.k.listaBRomanos), 13)
         self.assertEqual(self.k.status, 'R')
 
 
 
 if __name__ == '__main__':
     unittest.main()
-
-        

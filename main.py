@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 import calculator
+import cromanos
 
 class MainApp(Tk):
     def __init__(self):
